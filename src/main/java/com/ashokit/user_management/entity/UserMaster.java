@@ -34,17 +34,18 @@ public class UserMaster {
     @Column(name = "GENDER")
     Character gender;
 
+    @Column(name = "PASSWORD")
+    String password;
+
+    @Column(name = "STATUS")
+    String status;
+
     @Column(name = "CREATED_BY")
     String createdBy;
 
     @Column(name = "UPDATED_BY")
     String updatedBy;
 
-    @Column(name = "PASSWORD")
-    String password;
-
-    @Column(name = "STATUS")
-    String status;
 
     @Column(name = "CREATED_DATE", updatable = false)
     @CreationTimestamp
