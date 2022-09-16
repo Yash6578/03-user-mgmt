@@ -32,7 +32,7 @@ public class UserMaster {
     LocalDate dob;
 
     @Column(name = "GENDER")
-    Character gender;
+    String gender;
 
     @Column(name = "PASSWORD")
     String password;

@@ -2,9 +2,10 @@ package com.ashokit.user_management.service.impl;
 
 import com.ashokit.user_management.beans.ActivateRequest;
 import com.ashokit.user_management.beans.LoginRequest;
-import com.ashokit.user_management.beans.User;
+import com.ashokit.user_management.beans.RegisterRequest;
 import com.ashokit.user_management.entity.UserMaster;
 import com.ashokit.user_management.repo.UserMasterRepo;
+import com.ashokit.user_management.service.EmailSenderService;
 import com.ashokit.user_management.service.PasswordGeneratorService;
 import com.ashokit.user_management.service.UserManagementService;
 import lombok.AllArgsConstructor;
@@ -20,18 +21,29 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     final PasswordGeneratorService passwordGeneratorService;
     final UserMasterRepo userMasterRepo;
-    @Override
-    public boolean save(User user) {
-        UserMaster userMaster = new UserMaster();
-        BeanUtils.copyProperties(user, userMaster);
+    final EmailSenderService emailSenderService;
 
-        userMaster.setPassword(passwordGeneratorService.generate());
-        userMaster.setStatus("In-Active");
-        userMaster.setCreatedBy(user.getEmail());
+    boolean save(UserMaster user) {
+        return userMasterRepo.save(user).getId() != null;
+    }
 
-        //Todo: sent email
+    public boolean registerUser(RegisterRequest registerRequest) {
+        boolean isUserRegistered = false;
+        UserMaster user = new UserMaster();
+        BeanUtils.copyProperties(registerRequest, user);
 
-        return userMasterRepo.save(userMaster).getId() != null;
+        user.setPassword(passwordGeneratorService.generate());
+        user.setStatus("In-Active");
+
+        user.setCreatedBy(registerRequest.getEmail());
+
+        if(save(user)) {
+            String body = emailSenderService.getActivationMailBody(user.getFullName(), user.getPassword());
+            isUserRegistered =
+                    emailSenderService.sendEmail(user.getEmail(), "Your Registration is successful", body);
+        }
+
+        return isUserRegistered;
     }
 
     public boolean activeUserAccount(ActivateRequest activateRequest) {
@@ -47,12 +59,12 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<RegisterRequest> getAllUsers() {
 
-        List<User> users = new ArrayList<>();
+        List<RegisterRequest> users = new ArrayList<>();
 
         userMasterRepo.findAll().stream().forEach(userMaster -> {
-            User user = new User();
+            RegisterRequest user = new RegisterRequest();
             BeanUtils.copyProperties(userMaster, user);
             users.add(user);
         });
@@ -81,12 +93,12 @@ public class UserManagementServiceImpl implements UserManagementService {
     }
 
     @Override
-    public User getUserById(Long id) {
+    public RegisterRequest getUserById(Long id) {
         UserMaster userMaster = userMasterRepo.findById(id).get();
-        User user =  null;
+        RegisterRequest user =  null;
 
         if(userMaster != null) {
-            user = new User();
+            user = new RegisterRequest();
             BeanUtils.copyProperties(userMaster, user);
         }
 
@@ -110,11 +122,14 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Override
     public String forgetPassword(String email) {
         UserMaster user = userMasterRepo.findByEmail(email);
+        String status = "Invalid Email";
 
         if(user != null) {
-            //Todo: sent email
+            String body = emailSenderService.getForgetPasswordMailBody(user.getFullName(), user.getPassword());
+            emailSenderService.sendEmail(user.getEmail(), "Your Password for {APP}", body);
+            status = "Password sent to your registered email";
         }
 
-        return "Invalid Email";
+        return status;
     }
 }

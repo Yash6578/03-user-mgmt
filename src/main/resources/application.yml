@@ -1,12 +1,30 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: yashchawla
+    url: Your DB url
 
   jpa:
-    database: postgresql
-    show-sql: true
     hibernate:
       ddl-auto: update
-    generate-ddl: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        show_sql: true
+
+
+#For Email
+  mail:
+    properties:
+      mail:
+        debug: 'true'
+        smtp:
+          starttls:
+            enable: 'true'
+          auth: 'true'
+    host: smtp.gmail.com
+    username: Your email
+    protocol: smtp
+    password: Your password
+    port: '587'

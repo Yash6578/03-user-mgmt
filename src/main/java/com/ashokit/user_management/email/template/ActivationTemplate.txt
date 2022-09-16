@@ -1,0 +1,9 @@
+Hi {NAME}, <br/>
+Please find your temporary password below.<br/>
+Temp password: {PASSWORD}<br/>
+
+<a href="{URL}"> click here to activate your account.</a><br/>
+
+Thanks,<br/>
+Admin Team.
+

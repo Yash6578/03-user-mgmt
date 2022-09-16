@@ -5,11 +5,11 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class User {
+public class RegisterRequest {
     String fullName;
     String email;
     long mobileNumber;
     long ssn;
     LocalDate dob;
-    Character gender;
+    String gender;
 }
